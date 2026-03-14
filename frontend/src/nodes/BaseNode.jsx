@@ -1,24 +1,23 @@
 /**
  * BaseNode.jsx
- * ─────────────────────────────────────────────────────────────
- * Core abstraction for all node types.
- *
- * KEY FIX: ReactFlow Handles MUST be rendered as siblings of
- * the node's root div children — NOT nested inside sub-divs —
- * so they position correctly on the node edges.
- *
- * TextNode passes its dynamic handles via the `handles` prop
- * (rendered at root level), and its textarea via `extraContent`
- * (rendered inside the body).
+ * Core abstraction — every node renders through this component.
  *
  * Config shape:
  * {
- *   title, color,
- *   inputs:  [{ id, label }]   → left-side target handles
- *   outputs: [{ id, label }]   → right-side source handles
- *   fields:  [FieldDef]        → form fields in body
- *   width, minHeight
+ *   title:     string           required
+ *   color:     string           hex color for header
+ *   nameKey:   string|null      field key whose value shows in header
+ *   inputs:    [{id, label}]    left-side target handles
+ *   outputs:   [{id, label}]    right-side source handles
+ *   fields:    [FieldDef]       form fields in body
+ *   width:     number           default 220
+ *   minHeight: number|'auto'    default 'auto'
  * }
+ *
+ * Extra props:
+ *   extraContent  ReactNode  rendered inside body (TextNode textarea)
+ *   handles       ReactNode  rendered at ROOT level (TextNode dynamic handles)
+ *                            MUST be at root so ReactFlow positions them on edges
  */
 
 import React, { useEffect } from 'react';
@@ -106,7 +105,7 @@ function FieldRenderer({ field, value, onChange }) {
         </div>
       );
 
-    default:
+    default: // 'text'
       return (
         <div className="base-node__field">
           {field.label && <label className="base-node__label">{field.label}</label>}
@@ -125,27 +124,19 @@ function FieldRenderer({ field, value, onChange }) {
 
 // ─── BaseNode ─────────────────────────────────────────────────
 
-/**
- * @param {string}      id            ReactFlow node id
- * @param {object}      data          ReactFlow node data
- * @param {object}      config        Node configuration (see shape above)
- * @param {ReactNode}   extraContent  Extra JSX rendered inside body (TextNode textarea)
- * @param {ReactNode}   handles       Extra Handle elements rendered at ROOT level (TextNode dynamic handles)
- */
 export const BaseNode = ({ id, data, config, extraContent, handles }) => {
-  // ── Safe defaults — must happen before any hook ───────────────
+  // ── Derive safe values BEFORE any hook ────────────────────────
   const safeConfig = config && typeof config === 'object' ? config : {};
   const title      = safeConfig.title     ?? 'Node';
   const color      = safeConfig.color     ?? NODE_COLORS.text;
+  const nameKey    = safeConfig.nameKey   ?? null;
   const inputs     = Array.isArray(safeConfig.inputs)  ? safeConfig.inputs  : [];
   const outputs    = Array.isArray(safeConfig.outputs) ? safeConfig.outputs : [];
   const fields     = Array.isArray(safeConfig.fields)  ? safeConfig.fields  : [];
   const width      = safeConfig.width     ?? 220;
   const minHeight  = safeConfig.minHeight ?? 'auto';
-  // nameKey: which field value to show in the header (e.g. 'inputName')
-  const nameKey    = safeConfig.nameKey   ?? null;
 
-  // ── Hooks (all before any early return) ───────────────────────
+  // Build initialValues from field defaults + any existing data
   const initialValues = fields.reduce((acc, field) => {
     if (field?.key !== undefined) {
       acc[field.key] = data?.[field.key] ?? field.defaultValue ?? '';
@@ -153,10 +144,14 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
     return acc;
   }, {});
 
+  // ── Hooks (all before any return) ─────────────────────────────
   const { values, handleChange } = useNodeFields(id, initialValues);
 
   useEffect(() => {
-    if (!config) { logger.error(`BaseNode [${id}]: config missing`); return; }
+    if (!config) {
+      logger.error(`BaseNode [${id}]: config is null`);
+      return;
+    }
     try {
       validateNodeConfig(config);
       logger.debug(`BaseNode [${id}] mounted`);
@@ -165,13 +160,21 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
     }
   }, [id, config]);
 
-  // ── Early return after all hooks ──────────────────────────────
+  // ── Early return AFTER all hooks ──────────────────────────────
   if (!config) {
-    return <div className="base-node base-node--error"><span>⚠ Node config missing</span></div>;
+    return (
+      <div className="base-node base-node--error">
+        <span>⚠ Node config missing</span>
+      </div>
+    );
   }
 
   const inputPositions  = computeHandlePositions(inputs.length);
   const outputPositions = computeHandlePositions(outputs.length);
+
+  // Header label: use the user-edited name field if nameKey is set,
+  // otherwise fall back to the ReactFlow node id
+  const headerLabel = (nameKey && values?.[nameKey]) || id;
 
   return (
     <div className="base-node" style={{ width, minHeight }} data-node-id={id}>
@@ -179,7 +182,7 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
       {/* ── Header ── */}
       <div className="base-node__header" style={{ backgroundColor: color }}>
         <span className="base-node__title">{title}</span>
-        <span className="base-node__id">{(nameKey && values?.[nameKey]) || id}</span>
+        <span className="base-node__id">{headerLabel}</span>
       </div>
 
       {/* ── Body ── */}
@@ -201,7 +204,7 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
         {extraContent}
       </div>
 
-      {/* ── Static left handles (from config.inputs) ── */}
+      {/* ── Static input handles (left edge) ── */}
       {inputs.map((handle, i) => {
         if (!handle?.id) return null;
         return (
@@ -223,7 +226,7 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
         );
       })}
 
-      {/* ── Static right handles (from config.outputs) ── */}
+      {/* ── Static output handles (right edge) ── */}
       {outputs.map((handle, i) => {
         if (!handle?.id) return null;
         return (
@@ -245,8 +248,7 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
         );
       })}
 
-      {/* ── Dynamic handles slot (TextNode uses this) ── */}
-      {/* Rendered at ROOT level so ReactFlow positions them on the edge */}
+      {/* ── Dynamic handles slot (TextNode) — rendered at root level ── */}
       {handles}
 
     </div>

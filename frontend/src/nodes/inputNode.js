@@ -1,61 +1,51 @@
 /**
  * inputNode.js
- * Represents an entry point for data into the pipeline.
- * Refactored to use BaseNode — config-driven, no duplicated markup.
+ *
+ * Fix 1: defaultValue for inputName now reads from data.inputName first
+ *        (which is pre-populated at drop time in ui.js), so the header
+ *        shows "input_1" immediately without the user needing to type.
  */
 
 import { BaseNode } from './BaseNode';
 import { NODE_COLORS } from '../constants/nodeConfig';
 import logger from '../utils/logger';
 
-const INPUT_NODE_CONFIG = {
-  title: 'Input',
-  color: NODE_COLORS.customInput,
-  nameKey: 'inputName',        // field whose value shows in the header
-  inputs: [],  // No incoming connections — this is a source node
-  outputs: [
-    { id: 'value', label: 'value' },
-  ],
-  fields: [
-    {
-      key: 'inputName',
-      label: 'Name',
-      type: 'text',
-      placeholder: 'e.g. input_0',
-    },
-    {
-      key: 'inputType',
-      label: 'Type',
-      type: 'select',
-      defaultValue: 'Text',
-      options: ['Text', 'File', 'Image', 'Number'],
-    },
-  ],
-  width: 220,
-};
-
 export const InputNode = ({ id, data }) => {
   if (!id) {
-    logger.error('InputNode: missing required prop "id"');
+    logger.error('InputNode: missing id');
     return null;
   }
 
-  // Derive a human-friendly default name from the ReactFlow id
-  // e.g. "customInput-1" → "input_1"
-  const defaultName = id.replace('customInput-', 'input_');
+  // ui.js now writes inputName into data at drop time,
+  // so data.inputName is already "input_1" on first render.
+  // Fall back to id-derived name only if somehow missing.
+  const defaultName = data?.inputName || id.replace('customInput-', 'input_');
 
   const config = {
-    ...INPUT_NODE_CONFIG,
-    fields: INPUT_NODE_CONFIG.fields.map((field) => ({
-      ...field,
-      defaultValue:
-        field.key === 'inputName'
-          ? (data?.[field.key] || defaultName)
-          : (data?.[field.key] ?? field.defaultValue ?? ''),
-    })),
+    title:   'Input',
+    color:   NODE_COLORS.customInput,
+    nameKey: 'inputName',
+    inputs:  [],
+    outputs: [{ id: 'value', label: 'value' }],
+    fields: [
+      {
+        key:          'inputName',
+        label:        'Name',
+        type:         'text',
+        defaultValue: defaultName,
+        placeholder:  'e.g. input_0',
+      },
+      {
+        key:          'inputType',
+        label:        'Type',
+        type:         'select',
+        defaultValue: data?.inputType || 'Text',
+        options:      ['Text', 'File', 'Image', 'Number'],
+      },
+    ],
+    width: 220,
   };
 
-  logger.debug('InputNode render', { id });
-
+  logger.debug('InputNode render', { id, defaultName });
   return <BaseNode id={id} data={data} config={config} />;
 };
