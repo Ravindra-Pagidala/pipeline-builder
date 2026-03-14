@@ -1,0 +1,127 @@
+/* ============================================================
+   textNode.css
+   ============================================================ */
+
+.text-node__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.text-node__input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Textarea ── */
+.text-node__textarea {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: var(--space-2);
+  outline: none;
+  line-height: 1.6;
+  display: block;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.text-node__textarea:focus {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ── Dropdown (portal — rendered in document.body) ── */
+.text-node__dropdown--portal {
+  background: var(--color-surface, #1a1d27);
+  border: 1px solid #6366f1;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
+  overflow: hidden;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.text-node__dropdown-header {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f546b;
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid #2e3347;
+}
+
+.text-node__dropdown-empty {
+  font-size: 10px;
+  color: #4f546b;
+  padding: 12px;
+  text-align: center;
+}
+
+.text-node__dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.text-node__dropdown-item:hover,
+.text-node__dropdown-item:focus {
+  background: #22263a;
+  outline: none;
+}
+
+.text-node__dropdown-type {
+  font-size: 9px;
+  color: #4f546b;
+  background: #22263a;
+  border-radius: 3px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+}
+.text-node__dropdown-id {
+  font-size: 11px;
+  color: #e8eaf0;
+}
+.text-node__dropdown-hint {
+  font-size: 9px;
+  color: #4f546b;
+  margin-left: auto;
+}
+
+/* ── Variable list ── */
+.text-node__var-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.text-node__var-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.text-node__var-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #6366f1;
+  flex-shrink: 0;
+}
+.text-node__var-pill {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #a5b4fc;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}

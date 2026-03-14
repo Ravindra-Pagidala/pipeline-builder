@@ -1,0 +1,61 @@
+/* ============================================================
+   styles/theme.css
+   Design tokens — import this once at the top of index.css
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  /* --- Palette --- */
+  --color-bg:           #0f1117;
+  --color-surface:      #1a1d27;
+  --color-surface-2:    #22263a;
+  --color-border:       #2e3347;
+  --color-border-focus: #6366f1;
+
+  --color-text-primary:   #e8eaf0;
+  --color-text-secondary: #8b90a7;
+  --color-text-muted:     #4f546b;
+
+  --color-accent:   #6366f1;
+  --color-success:  #10b981;
+  --color-warning:  #f59e0b;
+  --color-danger:   #ef4444;
+
+  /* --- Node colors (matches nodeConfig.js) --- */
+  --node-input:     #6366f1;
+  --node-output:    #10b981;
+  --node-llm:       #f59e0b;
+  --node-text:      #3b82f6;
+  --node-filter:    #ec4899;
+  --node-math:      #8b5cf6;
+  --node-note:      #f97316;
+  --node-transform: #14b8a6;
+  --node-delay:     #64748b;
+
+  /* --- Typography --- */
+  --font-display: 'Syne', sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+
+  /* --- Spacing --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  /* --- Radii --- */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+
+  /* --- Shadows --- */
+  --shadow-node:  0 4px 24px rgba(0, 0, 0, 0.45), 0 1px 4px rgba(0,0,0,0.3);
+  --shadow-focus: 0 0 0 2px var(--color-border-focus);
+
+  /* --- Transitions --- */
+  --transition-fast:   120ms ease;
+  --transition-normal: 220ms ease;
+}
