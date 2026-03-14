@@ -1,0 +1,303 @@
+/* ============================================================
+   ResultModal.css
+   Premium analysis result modal.
+   Light, clean — matches the app's warm-canvas aesthetic.
+   ============================================================ */
+
+/* ── Backdrop ── */
+.result-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 12, 10, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  /* Fade in */
+  animation: modalBackdropIn 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalBackdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Panel ── */
+.result-modal__panel {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 18px;
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.08),
+    0 16px 48px rgba(0,0,0,0.12),
+    0 32px 80px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  /* Spring in */
+  animation: modalPanelIn 300ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalPanelIn {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+/* ── Header ── */
+.result-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.result-modal__header-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1814;
+  letter-spacing: -0.01em;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+}
+
+.result-modal__close {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.06);
+  color: #6b6460;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 140ms ease, color 140ms ease;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  line-height: 1;
+}
+
+.result-modal__close:hover {
+  background: rgba(0,0,0,0.12);
+  color: #1a1814;
+}
+
+/* ── Stats row ── */
+.result-modal__stats {
+  display: flex;
+  align-items: stretch;
+  padding: 20px;
+  gap: 0;
+}
+
+.result-modal__stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.result-modal__stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent, #5b4fff);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  /* Subtle color from CSS variable per stat */
+  background: linear-gradient(135deg, var(--accent, #5b4fff), color-mix(in srgb, var(--accent, #5b4fff) 70%, #000));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.result-modal__stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #a09b96;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+}
+
+.result-modal__stats-divider {
+  width: 1px;
+  background: rgba(0,0,0,0.07);
+  margin: 4px 16px;
+}
+
+/* ── DAG result card ── */
+.result-modal__dag-card {
+  margin: 0 20px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.result-modal__dag-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-weight: 600;
+  width: 24px;
+  text-align: center;
+}
+
+.result-modal__dag-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.result-modal__dag-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  margin: 0;
+}
+
+.result-modal__dag-message {
+  font-size: 12px;
+  color: #6b6460;
+  line-height: 1.55;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  margin: 0;
+}
+
+/* ── Explainer (collapsible) ── */
+.result-modal__explainer {
+  margin: 12px 20px 0;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.result-modal__explainer-toggle {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b6460;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.result-modal__explainer-toggle::-webkit-details-marker { display: none; }
+
+.result-modal__explainer-toggle::before {
+  content: '›  ';
+  font-size: 14px;
+  transition: transform 150ms ease;
+  display: inline-block;
+}
+
+details[open] .result-modal__explainer-toggle::before {
+  transform: rotate(90deg);
+}
+
+.result-modal__explainer-toggle:hover {
+  background: rgba(0,0,0,0.03);
+  color: #1a1814;
+}
+
+.result-modal__explainer-body {
+  padding: 0 14px 14px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.result-modal__explainer-body p {
+  font-size: 12px;
+  color: #6b6460;
+  line-height: 1.6;
+  margin: 10px 0;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+}
+
+.result-modal__explainer-body strong {
+  color: #1a1814;
+  font-weight: 600;
+}
+
+.result-modal__cases {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.result-modal__case {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+}
+
+.result-modal__case span:last-child {
+  color: #a09b96;
+}
+
+.result-modal__case--valid {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.result-modal__case--invalid {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.result-modal__case-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 0px;
+  font-weight: 700;
+}
+
+/* ── Action button ── */
+.result-modal__btn {
+  margin: 16px 20px 20px;
+  width: calc(100% - 40px);
+  padding: 10px;
+  background: #5b4fff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: var(--font-ui, 'Inter', sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    transform  200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 140ms ease;
+  box-shadow: 0 2px 8px rgba(91,79,255,0.3);
+}
+
+.result-modal__btn:hover {
+  background: #4a3ef0;
+  box-shadow: 0 4px 16px rgba(91,79,255,0.4);
+  transform: translateY(-1px);
+}
+
+.result-modal__btn:active {
+  transform: translateY(0) scale(0.99);
+}
