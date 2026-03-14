@@ -51,7 +51,8 @@ export function extractVariables(text) {
   }
   try {
     // Updated: allow hyphens inside names (e.g. llm-1, delay-1)
-    const regex = /\{\{([a-zA-Z_][a-zA-Z0-9_\-]*)\}\}/g;
+    // Supports "{{varName}}" and "{{ varName }}" (spaces trimmed)
+    const regex = /\{\{\s*([a-zA-Z_][a-zA-Z0-9_\-]*)\s*\}\}/g;
     const found = new Set();
     let match;
     while ((match = regex.exec(text)) !== null) {

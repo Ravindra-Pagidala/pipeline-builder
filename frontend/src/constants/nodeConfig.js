@@ -5,15 +5,15 @@
  */
 
 export const NODE_COLORS = {
-  customInput:   '#6366f1', // indigo
-  customOutput:  '#10b981', // emerald
-  llm:           '#f59e0b', // amber
-  text:          '#3b82f6', // blue
-  filter:        '#ec4899', // pink
-  math:          '#8b5cf6', // violet
-  note:          '#f97316', // orange
-  transform:     '#14b8a6', // teal
-  delay:         '#64748b', // slate
+  customInput:   '#4f46e5',
+  customOutput:  '#059669',
+  llm:           '#d97706',
+  text:          '#2563eb',
+  filter:        '#db2777',
+  math:          '#7c3aed',
+  note:          '#ea580c',
+  transform:     '#0891b2',
+  delay:         '#64748b',
 };
 
 export const NODE_CATEGORIES = {

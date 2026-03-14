@@ -1,99 +1,42 @@
-/* ============================================================
-   toolbar.css
-   Sidebar node palette styles
-   ============================================================ */
+/* toolbar.css — horizontal strip search */
 
-.toolbar {
-  width: 220px;
-  min-width: 220px;
-  height: 100vh;
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
+.toolbar__search-wrap {
+  position: relative;
   flex-shrink: 0;
 }
 
-.toolbar__header {
-  padding: var(--space-4) var(--space-4) var(--space-2);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.toolbar__title {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--color-text-primary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-/* ── Search ── */
-.toolbar__search-wrap {
-  padding: var(--space-3) var(--space-3) var(--space-2);
-}
-
 .toolbar__search {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  padding: var(--space-2) var(--space-3);
+  width: 140px;
+  background: var(--surface-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  padding: 6px 10px 6px 28px;
   outline: none;
-  transition: border-color var(--transition-fast);
+  transition:
+    border-color var(--dur-fast) var(--ease-smooth),
+    width var(--dur-normal) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-smooth);
 }
 
 .toolbar__search:focus {
-  border-color: var(--color-border-focus);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-mid);
+  width: 180px;
 }
 
-/* ── Categories ── */
-.toolbar__categories {
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-2) 0 var(--space-4);
-}
+.toolbar__search::placeholder { color: var(--text-tertiary); }
 
-.toolbar__category {
-  display: flex;
-  flex-direction: column;
-}
-
-.toolbar__cat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-2) var(--space-4);
-  background: transparent;
-  border: none;
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  transition: color var(--transition-fast);
-}
-
-.toolbar__cat-header:hover,
-.toolbar__cat-header--open {
-  color: var(--color-text-primary);
-}
-
-.toolbar__cat-arrow {
-  font-size: 8px;
-}
-
-/* ── Node list inside category ── */
-.toolbar__nodes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: 0 var(--space-3) var(--space-2);
+.toolbar__search-wrap::before {
+  content: '⌕';
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+  z-index: 1;
 }

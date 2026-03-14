@@ -1,61 +1,98 @@
 /* ============================================================
-   styles/theme.css
-   Design tokens — import this once at the top of index.css
+   theme.css  —  Pipeline Studio
+   
+   Direction: Premium light UI.
+   Think Figma's toolbar + Notion's warmth + Apple's precision.
+   A canvas that feels like a physical desk, nodes like cards
+   with real depth, a top bar like a native macOS app.
+   
+   Fonts: Geist (Vercel's typeface) for UI, 
+          Geist Mono for code elements.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* --- Palette --- */
-  --color-bg:           #0f1117;
-  --color-surface:      #1a1d27;
-  --color-surface-2:    #22263a;
-  --color-border:       #2e3347;
-  --color-border-focus: #6366f1;
+  /* ─── Canvas & surfaces ─── */
+  --canvas-bg:       #f0ede8;   /* warm parchment — the "desk" */
+  --canvas-dot:      #d4cfc9;   /* dot grid color */
 
-  --color-text-primary:   #e8eaf0;
-  --color-text-secondary: #8b90a7;
-  --color-text-muted:     #4f546b;
+  --surface-app:     #faf9f7;   /* app background */
+  --surface-panel:   rgba(252, 251, 249, 0.88);  /* frosted sidebar */
+  --surface-card:    #ffffff;   /* node cards */
+  --surface-input:   #f5f4f2;   /* input fields */
+  --surface-hover:   #eeecea;   /* hover state */
+  --surface-overlay: rgba(15, 12, 10, 0.45); /* modal backdrop */
 
-  --color-accent:   #6366f1;
-  --color-success:  #10b981;
-  --color-warning:  #f59e0b;
-  --color-danger:   #ef4444;
+  /* ─── Borders ─── */
+  --border-subtle:   rgba(0,0,0,0.06);
+  --border-default:  rgba(0,0,0,0.10);
+  --border-strong:   rgba(0,0,0,0.18);
+  --border-focus:    #5b4fff;
 
-  /* --- Node colors (matches nodeConfig.js) --- */
-  --node-input:     #6366f1;
-  --node-output:    #10b981;
-  --node-llm:       #f59e0b;
-  --node-text:      #3b82f6;
-  --node-filter:    #ec4899;
-  --node-math:      #8b5cf6;
-  --node-note:      #f97316;
-  --node-transform: #14b8a6;
-  --node-delay:     #64748b;
+  /* ─── Text ─── */
+  --text-primary:    #1a1814;
+  --text-secondary:  #6b6460;
+  --text-tertiary:   #a09b96;
+  --text-on-accent:  #ffffff;
 
-  /* --- Typography --- */
-  --font-display: 'Syne', sans-serif;
-  --font-mono:    'IBM Plex Mono', monospace;
+  /* ─── Signature accent: deep violet ─── */
+  --accent:          #5b4fff;
+  --accent-light:    #ece9ff;
+  --accent-mid:      rgba(91, 79, 255, 0.15);
+  --accent-glow:     rgba(91, 79, 255, 0.2);
 
-  /* --- Spacing --- */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
+  /* ─── Node type colors — rich, distinct ─── */
+  --node-input:      #4f46e5;   /* indigo */
+  --node-output:     #059669;   /* emerald */
+  --node-llm:        #d97706;   /* amber */
+  --node-text:       #2563eb;   /* blue */
+  --node-filter:     #db2777;   /* pink */
+  --node-math:       #7c3aed;   /* violet */
+  --node-note:       #ea580c;   /* orange */
+  --node-transform:  #0891b2;   /* cyan */
+  --node-delay:      #64748b;   /* slate */
 
-  /* --- Radii --- */
-  --radius-sm:  6px;
-  --radius-md:  10px;
-  --radius-lg:  14px;
-  --radius-xl:  20px;
+  /* ─── Typography ─── */
+  --font-ui:    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
 
-  /* --- Shadows --- */
-  --shadow-node:  0 4px 24px rgba(0, 0, 0, 0.45), 0 1px 4px rgba(0,0,0,0.3);
-  --shadow-focus: 0 0 0 2px var(--color-border-focus);
+  /* ─── Spacing ─── */
+  --sp-1: 4px;   --sp-2: 8px;   --sp-3: 12px;  --sp-4: 16px;
+  --sp-5: 20px;  --sp-6: 24px;  --sp-8: 32px;
 
-  /* --- Transitions --- */
-  --transition-fast:   120ms ease;
-  --transition-normal: 220ms ease;
+  /* ─── Radii ─── */
+  --r-xs:  4px;   --r-sm:  8px;   --r-md:  12px;
+  --r-lg:  16px;  --r-xl:  20px;  --r-2xl: 28px;
+
+  /* ─── Shadows — the key to premium feel ─── */
+  /* macOS-style: warm undertone, multi-layer, real depth */
+  --shadow-xs:    0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:    0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-node:  0 2px 4px rgba(0,0,0,0.04),
+                  0 4px 12px rgba(0,0,0,0.07),
+                  0 12px 32px rgba(0,0,0,0.08),
+                  0 0 0 1px rgba(0,0,0,0.06);
+  --shadow-node-hover:
+                  0 4px 8px rgba(0,0,0,0.06),
+                  0 8px 24px rgba(0,0,0,0.10),
+                  0 20px 48px rgba(0,0,0,0.10),
+                  0 0 0 1px rgba(0,0,0,0.08);
+  --shadow-node-selected:
+                  0 4px 8px rgba(91,79,255,0.08),
+                  0 8px 24px rgba(91,79,255,0.12),
+                  0 0 0 2px #5b4fff;
+  --shadow-panel: 1px 0 0 rgba(0,0,0,0.06),
+                  4px 0 24px rgba(0,0,0,0.04);
+  --shadow-topbar: 0 1px 0 rgba(0,0,0,0.06),
+                   0 2px 8px rgba(0,0,0,0.04);
+
+  /* ─── Motion — spring physics ─── */
+  --ease-out:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:  cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:     140ms;
+  --dur-normal:   220ms;
+  --dur-spring:   320ms;
 }

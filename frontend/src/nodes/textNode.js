@@ -77,9 +77,13 @@ function NodeDropdown({ items, dropdownRef, onSelect, anchorRef }) {
       ref={dropdownRef}
       style={{
         position: 'fixed', top: pos.top, left: pos.left, width: pos.width,
-        zIndex: 99999, background: '#1a1d27', border: '1px solid #6366f1',
-        borderRadius: '10px', boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
-        overflow: 'hidden', fontFamily: "'IBM Plex Mono', monospace",
+        zIndex: 99999,
+        background: '#ffffff',
+        border: '1px solid rgba(0,0,0,0.10)',
+        borderRadius: '12px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.04)',
+        overflow: 'hidden',
+        fontFamily: "'Inter', sans-serif",
       }}
     >
       <div className="text-node__dropdown-header">Select a node to connect</div>
@@ -344,7 +348,7 @@ export const TextNode = ({ id, data }) => {
       config={{
         title: 'Text', color: NODE_COLORS.text,
         inputs: [], outputs: [], fields: [],
-        width: dimensions.width, minHeight: dimensions.height,
+        width: dimensions.width,
       }}
       extraContent={extraContent}
       handles={dynamicHandles}

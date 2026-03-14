@@ -1,54 +1,34 @@
 /**
  * draggableNode.js
- * A draggable chip in the toolbar palette.
- * Accepts icon + color from nodeConfig for visual distinction.
+ * Horizontal toolbar chip — icon + label, pill shape.
+ * Lifts on hover like a physical key being pressed.
  */
 
 import logger from './utils/logger';
 import './styles/draggableNode.css';
 
 export const DraggableNode = ({ type, label, icon, color }) => {
-  if (!type) {
-    logger.warn('DraggableNode: "type" prop is missing');
-    return null;
-  }
+  if (!type) { logger.warn('DraggableNode: type missing'); return null; }
 
   const onDragStart = (event) => {
     try {
-      const appData = { nodeType: type };
-      event.dataTransfer.setData('application/reactflow', JSON.stringify(appData));
+      event.dataTransfer.setData('application/reactflow', JSON.stringify({ nodeType: type }));
       event.dataTransfer.effectAllowed = 'move';
-      logger.debug('DraggableNode dragStart', { type });
-    } catch (err) {
-      logger.error('DraggableNode: dragStart failed', err);
-    }
-  };
-
-  const onDragEnd = (event) => {
-    event.target.style.opacity = '1';
-  };
-
-  const onDragStartStyle = (event) => {
-    event.target.style.opacity = '0.6';
-    onDragStart(event);
+    } catch (err) { logger.error('DraggableNode: dragStart failed', err); }
   };
 
   return (
     <div
       className="draggable-node"
       draggable
-      onDragStart={onDragStartStyle}
-      onDragEnd={onDragEnd}
+      onDragStart={onDragStart}
+      onDragEnd={(e) => { e.target.style.opacity = '1'; }}
       data-type={type}
-      title={`Drag to add ${label} node`}
+      title={`Drag to add ${label}`}
+      style={{ '--node-color': color }}
     >
-      {/* Colored accent bar on left */}
-      <span
-        className="draggable-node__accent"
-        style={{ backgroundColor: color || '#6366f1' }}
-      />
-      {icon && <span className="draggable-node__icon">{icon}</span>}
-      <span className="draggable-node__label">{label || type}</span>
+      <span className="draggable-node__icon">{icon}</span>
+      <span className="draggable-node__label">{label}</span>
     </div>
   );
 };

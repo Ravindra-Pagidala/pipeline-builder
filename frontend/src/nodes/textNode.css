@@ -1,127 +1,96 @@
-/* ============================================================
-   textNode.css
-   ============================================================ */
+/* textNode.css */
 
 .text-node__content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  width: 100%;
+  display: flex; flex-direction: column; gap: 8px; width: 100%;
 }
 
-.text-node__input-wrap {
-  position: relative;
-  width: 100%;
-}
+.text-node__input-wrap { position: relative; width: 100%; }
 
-/* ── Textarea ── */
 .text-node__textarea {
-  background: var(--color-surface-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
+  background: var(--surface-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xs);
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 11px;
-  padding: var(--space-2);
+  padding: 7px 9px;
   outline: none;
-  line-height: 1.6;
+  line-height: 1.65;
   display: block;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--dur-fast) var(--ease-smooth),
+    background var(--dur-fast) var(--ease-smooth),
+    box-shadow var(--dur-fast) var(--ease-smooth);
 }
+
 .text-node__textarea:focus {
-  border-color: var(--color-border-focus);
-  box-shadow: var(--shadow-focus);
+  border-color: var(--accent);
+  background: white;
+  box-shadow: 0 0 0 3px var(--accent-mid);
 }
 
-/* ── Dropdown (portal — rendered in document.body) ── */
-.text-node__dropdown--portal {
-  background: var(--color-surface, #1a1d27);
-  border: 1px solid #6366f1;
-  border-radius: 10px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.7);
-  overflow: hidden;
-  font-family: 'IBM Plex Mono', monospace;
+.text-node__textarea::placeholder {
+  color: var(--text-tertiary); font-style: italic;
 }
 
+/* Dropdown */
 .text-node__dropdown-header {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #4f546b;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-tertiary);
   padding: 8px 12px 6px;
-  border-bottom: 1px solid #2e3347;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .text-node__dropdown-empty {
-  font-size: 10px;
-  color: #4f546b;
-  padding: 12px;
-  text-align: center;
+  font-size: 12px; color: var(--text-tertiary);
+  padding: 14px 12px; text-align: center;
 }
 
 .text-node__dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 12px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background 120ms ease;
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 8px 12px;
+  background: transparent; border: none;
+  cursor: pointer; text-align: left;
+  transition: background var(--dur-fast) var(--ease-smooth);
   user-select: none;
-  -webkit-user-select: none;
 }
-.text-node__dropdown-item:hover,
-.text-node__dropdown-item:focus {
-  background: #22263a;
-  outline: none;
-}
+
+.text-node__dropdown-item:hover { background: var(--surface-hover); }
 
 .text-node__dropdown-type {
-  font-size: 9px;
-  color: #4f546b;
-  background: #22263a;
-  border-radius: 3px;
-  padding: 1px 5px;
-  flex-shrink: 0;
-}
-.text-node__dropdown-id {
-  font-size: 11px;
-  color: #e8eaf0;
-}
-.text-node__dropdown-hint {
-  font-size: 9px;
-  color: #4f546b;
-  margin-left: auto;
+  font-size: 10px; color: var(--text-tertiary);
+  background: var(--surface-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xs);
+  padding: 1px 6px; flex-shrink: 0;
+  font-family: var(--font-mono);
 }
 
-/* ── Variable list ── */
-.text-node__var-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.text-node__dropdown-id {
+  font-size: 12px; color: var(--text-primary);
+  font-weight: 500;
 }
-.text-node__var-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+
+.text-node__dropdown-hint {
+  font-size: 10px; color: var(--text-tertiary);
+  margin-left: auto; font-family: var(--font-mono);
 }
+
+/* Variable list */
+.text-node__var-list { display: flex; flex-direction: column; gap: 4px; }
+
+.text-node__var-row { display: flex; align-items: center; gap: 6px; }
+
 .text-node__var-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #6366f1;
-  flex-shrink: 0;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
 }
+
 .text-node__var-pill {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: #a5b4fc;
-  background: rgba(99,102,241,0.12);
-  border: 1px solid rgba(99,102,241,0.3);
-  border-radius: 4px;
-  padding: 1px 6px;
-  white-space: nowrap;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-light);
+  border: 1px solid rgba(91,79,255,0.2);
+  border-radius: var(--r-xs);
+  padding: 1px 7px; white-space: nowrap;
 }

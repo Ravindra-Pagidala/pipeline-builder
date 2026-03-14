@@ -169,19 +169,32 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
     );
   }
 
-  const inputPositions  = computeHandlePositions(inputs.length);
-  const outputPositions = computeHandlePositions(outputs.length);
+  // Use fixed pixel offsets from top instead of percentages.
+  // Percentages of node height land in the middle of body fields.
+  // Fixed px keeps handles near the header zone, never in body content.
+  const HANDLE_START_PX = 28;  // px from top for first handle
+  const HANDLE_STEP_PX  = 26;  // px between handles
+
+  // We still need computeHandlePositions for the case where
+  // only 1 handle exists (center it at 50%)
+  const inputPositions  = inputs.length  === 1 ? ['50%'] :
+    inputs.map((_,i)  => `${HANDLE_START_PX + i * HANDLE_STEP_PX}px`);
+  const outputPositions = outputs.length === 1 ? ['50%'] :
+    outputs.map((_,i) => `${HANDLE_START_PX + i * HANDLE_STEP_PX}px`);
 
   // Header label: use the user-edited name field if nameKey is set,
   // otherwise fall back to the ReactFlow node id
   const headerLabel = (nameKey && values?.[nameKey]) || id;
 
   return (
-    <div className="base-node" style={{ width, minHeight }} data-node-id={id}>
+    <div className="base-node" style={{ width, "--node-accent-color": color }} data-node-id={id}>
 
       {/* ── Header ── */}
-      <div className="base-node__header" style={{ backgroundColor: color }}>
-        <span className="base-node__title">{title}</span>
+      <div className="base-node__header">
+        <div className="base-node__header-left">
+          <span className="base-node__dot" style={{ background: color }} />
+          <span className="base-node__title">{title}</span>
+        </div>
         <span className="base-node__id">{headerLabel}</span>
       </div>
 
@@ -213,15 +226,13 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
               type="target"
               position={Position.Left}
               id={makeHandleId(id, handle.id)}
-              style={{ top: `${inputPositions[i]}%`, zIndex: 50, pointerEvents: 'all' }}
+              style={{ top: inputPositions[i], zIndex: 50, pointerEvents: 'all' }}
               className="base-node__handle base-node__handle--input"
             />
             <span
-              className="base-node__handle-label base-node__handle-label--left"
-              style={{ top: `calc(${inputPositions[i]}% - 8px)` }}
-            >
-              {handle.label || handle.id}
-            </span>
+              className="base-node__handle-chip base-node__handle-chip--left"
+              style={{ top: inputPositions[i] }}
+            >{handle.label || handle.id}</span>
           </React.Fragment>
         );
       })}
@@ -235,15 +246,13 @@ export const BaseNode = ({ id, data, config, extraContent, handles }) => {
               type="source"
               position={Position.Right}
               id={makeHandleId(id, handle.id)}
-              style={{ top: `${outputPositions[i]}%`, zIndex: 50, pointerEvents: 'all' }}
+              style={{ top: outputPositions[i], zIndex: 50, pointerEvents: 'all' }}
               className="base-node__handle base-node__handle--output"
             />
             <span
-              className="base-node__handle-label base-node__handle-label--right"
-              style={{ top: `calc(${outputPositions[i]}% - 8px)` }}
-            >
-              {handle.label || handle.id}
-            </span>
+              className="base-node__handle-chip base-node__handle-chip--right"
+              style={{ top: outputPositions[i] }}
+            >{handle.label || handle.id}</span>
           </React.Fragment>
         );
       })}

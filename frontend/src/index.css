@@ -1,50 +1,26 @@
-/* ============================================================
-   index.css
-   Global reset + theme import. Everything visual lives in
-   theme.css — keep this file minimal.
-   ============================================================ */
-
 @import './styles/theme.css';
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html,
-body,
-#root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+html, body, #root {
+  width: 100%; height: 100%; overflow: hidden;
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text-primary);
-  font-family: var(--font-mono);
+  background: var(--surface-app);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02','cv03','cv04','cv11';
 }
 
-/* Scrollbar styling for dark theme */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-surface);
-}
-
+/* Thin elegant scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 3px;
+  background: rgba(0,0,0,0.12); border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-muted);
-}
+::selection { background: var(--accent-light); color: var(--text-primary); }
