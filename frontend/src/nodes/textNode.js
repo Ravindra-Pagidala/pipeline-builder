@@ -164,16 +164,20 @@ export const TextNode = ({ id, data }) => {
     const newVars = extractVariables(value);
     setVariables(newVars);
 
-    // Tell the store to reconcile edges for this TextNode.
-    // The store sees the full current edges list and can do an
-    // atomic diff + remove in one set() call — no stale closure issues.
-    if (id) {
+    // Check if the user is currently mid-typing a {{ expression
+    // e.g. "{{llm" — not yet closed with }}
+    // If so, do NOT sync edges yet — we'd delete existing edges
+    // because the incomplete {{llm doesn't extract as a variable.
+    const beforeCursor  = value.slice(0, cursor);
+    const isTypingVar   = /\{\{[^}]*$/.test(beforeCursor);
+
+    if (id && !isTypingVar) {
+      // Only sync when not mid-typing — safe to diff
       syncTextNodeEdges(id, newVars);
     }
 
     // Show/hide dropdown
-    const beforeCursor = value.slice(0, cursor);
-    const match        = beforeCursor.match(/\{\{([^}]*)$/);
+    const match = isTypingVar ? beforeCursor.match(/\{\{([^}]*)$/) : null;
     if (match) {
       setDropdownFilter(match[1] ?? '');
       setShowDropdown(true);

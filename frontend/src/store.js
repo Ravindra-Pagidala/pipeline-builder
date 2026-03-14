@@ -1,25 +1,17 @@
 /**
  * store.js
- * Zustand global store.
  *
- * Key action: syncTextNodeEdges
- * ─────────────────────────────
- * Called every time the TextNode textarea changes.
- * Receives the TextNode's id + the CURRENT list of variables.
- * In a single atomic set() call it:
- *   1. Removes all edges whose target is this TextNode AND whose
- *      targetHandle is NOT in the current variable list
- *      (handles deleted variables).
- *   2. Optionally adds a new edge when a new variable was just
- *      selected from the dropdown.
+ * Critical fix: ReactFlow's addEdge() deduplicates by source+target
+ * combination only — it ignores sourceHandle/targetHandle. This means
+ * if you connect Node A → TextNode and then Node B → TextNode,
+ * the second edge gets silently dropped as a "duplicate".
  *
- * This is atomic — no stale closure or ref issues because the
- * store function always reads get().edges (the live value).
+ * Fix: generate explicit unique edge IDs so addEdge never deduplicates.
+ * We use a custom edgeExists() check that considers all 4 fields.
  */
 
 import { create } from 'zustand';
 import {
-  addEdge,
   applyNodeChanges,
   applyEdgeChanges,
   MarkerType,
@@ -38,8 +30,25 @@ const EDGE_STYLE = {
   style: { stroke: '#6366f1', strokeWidth: 1.5 },
 };
 
-// Build the targetHandle id for a TextNode variable
-// Must match makeHandleId(id, varName) in nodeUtils
+// Generate a unique, deterministic edge id from its 4 endpoints.
+// Using all 4 fields means two edges with different handles but same
+// source/target get different IDs — ReactFlow won't deduplicate them.
+function makeEdgeId(source, sourceHandle, target, targetHandle) {
+  return `e__${source}__${sourceHandle}__${target}__${targetHandle}`;
+}
+
+// Check if an edge with these exact 4 endpoints already exists
+function edgeExists(edges, source, sourceHandle, target, targetHandle) {
+  return edges.some(
+    (e) =>
+      e.source       === source       &&
+      e.sourceHandle === sourceHandle &&
+      e.target       === target       &&
+      e.targetHandle === targetHandle
+  );
+}
+
+// Build a targetHandle id for a TextNode variable (matches makeHandleId)
 function textTargetHandle(nodeId, varName) {
   return `${nodeId}-${varName}`;
 }
@@ -49,7 +58,7 @@ export const useStore = create((set, get) => ({
   edges:   [],
   nodeIDs: {},
 
-  // ── ID generation ─────────────────────────────────────────────
+  // ── ID generation ──────────────────────────────────────────────
   getNodeID: (type) => {
     if (!type) {
       logger.error('store.getNodeID: type required');
@@ -63,7 +72,7 @@ export const useStore = create((set, get) => ({
     return id;
   },
 
-  // ── Add node ──────────────────────────────────────────────────
+  // ── Add node ───────────────────────────────────────────────────
   addNode: (node) => {
     if (!node?.id || !node?.type) {
       logger.error('store.addNode: node must have id and type', node);
@@ -73,15 +82,13 @@ export const useStore = create((set, get) => ({
     logger.info('store.addNode', { id: node.id, type: node.type });
   },
 
-  // ── Node changes (includes deletion + edge cleanup) ───────────
+  // ── Node changes (move, select, delete + edge cleanup) ─────────
   onNodesChange: (changes) => {
     try {
       const updatedNodes = applyNodeChanges(changes, get().nodes);
-
-      const removedIds = new Set(
+      const removedIds   = new Set(
         changes.filter((c) => c.type === 'remove').map((c) => c.id)
       );
-
       const updatedEdges = removedIds.size > 0
         ? get().edges.filter(
             (e) => !removedIds.has(e.source) && !removedIds.has(e.target)
@@ -100,7 +107,7 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // ── Edge changes ──────────────────────────────────────────────
+  // ── Edge changes ───────────────────────────────────────────────
   onEdgesChange: (changes) => {
     try {
       set({ edges: applyEdgeChanges(changes, get().edges) });
@@ -116,14 +123,27 @@ export const useStore = create((set, get) => ({
       return;
     }
     try {
-      set({ edges: addEdge({ ...connection, ...EDGE_STYLE }, get().edges) });
+      const { source, sourceHandle, target, targetHandle } = connection;
+
+      if (edgeExists(get().edges, source, sourceHandle, target, targetHandle)) {
+        logger.debug('store.onConnect: duplicate, skipping');
+        return;
+      }
+
+      const edge = {
+        ...connection,
+        id: makeEdgeId(source, sourceHandle, target, targetHandle),
+        ...EDGE_STYLE,
+      };
+
+      set({ edges: [...get().edges, edge] });
       logger.debug('store.onConnect', connection);
     } catch (err) {
       logger.error('store.onConnect: failed', err);
     }
   },
 
-  // ── Field sync ────────────────────────────────────────────────
+  // ── Field sync ─────────────────────────────────────────────────
   updateNodeField: (nodeId, fieldName, fieldValue) => {
     if (!nodeId || !fieldName) {
       logger.warn('store.updateNodeField: nodeId and fieldName required');
@@ -138,77 +158,68 @@ export const useStore = create((set, get) => ({
     });
   },
 
-  // ── ATOMIC edge sync for TextNode ─────────────────────────────
+  // ── ATOMIC edge sync for TextNode ──────────────────────────────
   //
-  // Called every time the TextNode textarea changes.
+  // Called on every textarea change and on dropdown selection.
   //
-  // @param textNodeId  string        — the TextNode's ReactFlow id
-  // @param currentVars string[]      — variables currently in the text
-  // @param newEdge     object|null   — if a new variable was just picked:
-  //   { newVar, sourceNodeId, sourceHandle, targetHandle }
+  // @param textNodeId   string      — this TextNode's id
+  // @param currentVars  string[]    — variables currently in the text
+  // @param newEdge      object|null — edge to add for a newly selected var:
+  //   { sourceNodeId, sourceHandle, targetHandle }
   //
-  // What it does in ONE set() call:
-  //   Step 1 — Remove edges that target this TextNode whose
-  //            targetHandle is NOT in the currentVars list
-  //            (these belong to deleted variables)
-  //   Step 2 — If newEdge provided, add it (no duplicate check
-  //            needed because step 1 already removed old version)
+  // In ONE set() call:
+  //   1. Remove all edges targeting this TextNode whose targetHandle
+  //      is not in currentVars (handles deleted variables)
+  //   2. Add newEdge if provided and not duplicate
   syncTextNodeEdges: (textNodeId, currentVars, newEdge = null) => {
     if (!textNodeId) return;
 
     try {
-      // Build the set of valid targetHandle ids for current variables
+      // Set of valid target handle ids based on current variable list
       const validHandles = new Set(
         currentVars.map((v) => textTargetHandle(textNodeId, v))
       );
 
-      // Step 1: keep all edges EXCEPT stale ones targeting this TextNode
+      // Step 1: remove stale edges targeting this TextNode
       let updatedEdges = get().edges.filter((e) => {
-        // Keep edges that don't target this TextNode
-        if (e.target !== textNodeId) return true;
-        // For edges that DO target this TextNode,
-        // keep only those whose targetHandle is still valid
-        return validHandles.has(e.targetHandle);
+        if (e.target !== textNodeId) return true;       // keep — not ours
+        return validHandles.has(e.targetHandle);         // keep if still valid
       });
 
-      // Step 2: add the new edge if provided
+      // Step 2: add new edge if provided
       if (newEdge) {
         const { sourceNodeId, sourceHandle, targetHandle } = newEdge;
 
-        // Check if this exact edge already exists after step 1 cleanup
-        const alreadyExists = updatedEdges.some(
-          (e) =>
-            e.source       === sourceNodeId &&
-            e.target       === textNodeId   &&
-            e.sourceHandle === sourceHandle &&
-            e.targetHandle === targetHandle
-        );
-
-        if (!alreadyExists) {
-          const connection = {
+        if (!edgeExists(updatedEdges, sourceNodeId, sourceHandle, textNodeId, targetHandle)) {
+          const edge = {
+            id:           makeEdgeId(sourceNodeId, sourceHandle, textNodeId, targetHandle),
             source:       sourceNodeId,
             sourceHandle: sourceHandle,
             target:       textNodeId,
             targetHandle: targetHandle,
+            ...EDGE_STYLE,
           };
-          updatedEdges = addEdge({ ...connection, ...EDGE_STYLE }, updatedEdges);
-          logger.info('store.syncTextNodeEdges: edge added', connection);
+          updatedEdges = [...updatedEdges, edge];
+          logger.info('store.syncTextNodeEdges: edge added', {
+            sourceNodeId, sourceHandle, textNodeId, targetHandle,
+          });
         }
       }
 
       set({ edges: updatedEdges });
 
-      logger.debug('store.syncTextNodeEdges', {
+      logger.debug('store.syncTextNodeEdges done', {
         textNodeId,
         currentVars,
-        edgeCount: updatedEdges.length,
+        totalEdges: updatedEdges.length,
+        validHandles: [...validHandles],
       });
     } catch (err) {
       logger.error('store.syncTextNodeEdges: failed', err);
     }
   },
 
-  // ── Clear canvas ──────────────────────────────────────────────
+  // ── Clear canvas ───────────────────────────────────────────────
   clearCanvas: () => {
     set({ nodes: [], edges: [], nodeIDs: {} });
     logger.info('store.clearCanvas');
